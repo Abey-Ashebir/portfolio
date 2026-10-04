@@ -3,6 +3,73 @@ import './App.css'
 import heroImage from './assets/hero.png'
 import profileImage from './assets/me.jpg'
 import cvFile from './assets/Abey_Ashebir_CV.pdf'
+import projectAfroFarm from './assets/projectsSampleImage/afrofarm.png'
+import projectRegistration from './assets/projectsSampleImage/Registration.png'
+import projectSchedule from './assets/projectsSampleImage/schedule.png'
+import projectShopper from './assets/projectsSampleImage/shopper.png'
+import projectDigitalUnity from './assets/projectsSampleImage/Digital unity.png'
+import certCisco from './assets/cisco.png'
+import certTenaMart from './assets/TENAMART.png'
+import certUdacity from './assets/udacity.png'
+import certUdemy from './assets/udemy.png'
+import certWolkite from './assets/wolkiteuniversity.jpg'
+
+const projectImageMap = {
+  'IES – Instructor Evaluation System': projectSchedule,
+  'Digital Unity Telegram Bot': projectDigitalUnity,
+  'AfroFarm': projectAfroFarm,
+  'Selale University Scheduling System': projectSchedule,
+  'Shopper': projectShopper,
+  'Student Seminar Presenter': null,
+  'Secondary School Registration': projectRegistration,
+  'Tena_Mart Waiting List': null,
+  'Task Management System': null,
+  'Home Alarm System': null,
+  'Local-Business Android App': null,
+}
+
+const certificateImageMap = {
+  CISCO: certCisco,
+  Udemy: certUdemy,
+  Udacity: certUdacity,
+  TenaMart: certTenaMart,
+  'Wolkite University': certWolkite,
+  '5 Million Ethio Coders': certUdemy,
+  'Great Learning': certUdemy,
+}
+
+const normalizeProfileData = (data = {}) => {
+  const normalizeProjects = (items = fallbackProfile.projects) =>
+    items.map((project) => ({
+      ...project,
+      image: project.image ?? projectImageMap[project.name] ?? null,
+    }))
+
+  const normalizeCertifications = (items = fallbackProfile.certifications) =>
+    items.map((item) => {
+      if (typeof item === 'string') {
+        return {
+          name: item,
+          image: certificateImageMap[item] || certUdemy,
+        }
+      }
+
+      return {
+        ...item,
+        image: item.image || certificateImageMap[item.name] || certUdemy,
+      }
+    })
+
+  return {
+    ...fallbackProfile,
+    ...data,
+    photo: profileImage,
+    heroImage,
+    cvUrl: cvFile,
+    projects: normalizeProjects(data.projects || fallbackProfile.projects),
+    certifications: normalizeCertifications(data.certifications || fallbackProfile.certifications),
+  }
+}
 
 const fallbackProfile = {
   name: 'Abey Ashebir',
@@ -67,6 +134,7 @@ const fallbackProfile = {
         'A full-stack evaluation platform for managing instructor assessments, reports, and feedback workflows.',
       stack: ['React', 'Node.js', 'Express', 'MongoDB'],
       link: 'https://github.com/Abey-Ashebir/IES-Instructor-Evaluation-System',
+      image: projectSchedule,
     },
     {
       name: 'Digital Unity Telegram Bot',
@@ -75,6 +143,7 @@ const fallbackProfile = {
         'A Python-based Telegram bot for automating campus and business-related communication workflows.',
       stack: ['Python', 'Telegram Bot API'],
       link: 'https://github.com/Abey-Ashebir/Digital_Unity_bot',
+      image: projectDigitalUnity,
     },
     {
       name: 'AfroFarm',
@@ -83,6 +152,7 @@ const fallbackProfile = {
         'A web platform focused on agribusiness operations, product management, and digital service support.',
       stack: ['React', 'Node.js', 'Express', 'MongoDB'],
       link: 'https://github.com/Abey-Ashebir/Full-Stack-Egg-Delivery-Website',
+      image: projectAfroFarm,
     },
   ],
   skills: [
@@ -116,7 +186,14 @@ const fallbackProfile = {
     { language: 'Afaan Oromo', level: 'Fluent' },
     { language: 'English', level: 'Intermediate' },
   ],
-  certifications: ['TenaMart', 'CISCO', 'Great Learning', '5 Million Ethio Coders', 'Udemy', 'Wolkite University'],
+  certifications: [
+    { name: 'TenaMart', image: certTenaMart },
+    { name: 'CISCO', image: certCisco },
+    { name: 'Great Learning', image: certUdemy },
+    { name: '5 Million Ethio Coders', image: certUdemy },
+    { name: 'Udemy', image: certUdemy },
+    { name: 'Wolkite University', image: certWolkite },
+  ],
   contact: [
     { label: 'Email', value: 'abeyashebir@gmail.com', href: 'mailto:abeyashebir@gmail.com' },
     { label: 'Phone', value: '+251 934 478 593', href: 'tel:+251934478593' },
@@ -138,9 +215,9 @@ function App() {
         }
 
         const data = await response.json()
-        setProfile({ ...fallbackProfile, ...data, photo: profileImage, heroImage, cvUrl: cvFile })
+        setProfile(normalizeProfileData(data))
       } catch {
-        setProfile({ ...fallbackProfile, photo: profileImage, heroImage, cvUrl: cvFile })
+        setProfile(normalizeProfileData())
       } finally {
         setLoading(false)
       }
@@ -213,9 +290,15 @@ function App() {
 
           <div className="hero-visual">
             <div className="image-card">
-              <img src={profile.heroImage || heroImage} alt="Abey Ashebir portfolio cover" />
+              <img
+                src={profile.heroImage || heroImage}
+                alt="Abey Ashebir portfolio cover"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+              />
             </div>
-            <div className="floating-card">
+            <div className="floating-card" aria-label="Current focus">
               <span>Currently building</span>
               <strong>Reliable web systems</strong>
             </div>
@@ -230,7 +313,13 @@ function App() {
 
           <div className="about-grid">
             <div className="portrait-panel glass-card">
-              <img src={profile.photo || profileImage} alt={profile.name} className="profile-photo" />
+              <img
+                src={profile.photo || profileImage}
+                alt={profile.name}
+                className="profile-photo"
+                loading="lazy"
+                decoding="async"
+              />
             </div>
 
             <div className="glass-card about-card">
@@ -280,6 +369,12 @@ function App() {
           <div className="project-grid">
             {profile.projects?.map((project) => (
               <article key={project.name} className="project-card glass-card">
+                {project.image ? (
+                  <div className="project-visual">
+                    <img src={project.image} alt={project.name} loading="lazy" decoding="async" />
+                  </div>
+                ) : null}
+
                 <div className="project-header">
                   <span className="project-tag">{project.type}</span>
                   <a href={project.link} target="_blank" rel="noreferrer">
@@ -357,10 +452,25 @@ function App() {
 
             <div className="glass-card skill-card">
               <h3>Certifications</h3>
-              <div className="chip-list">
-                {profile.certifications?.map((item) => (
-                  <span key={item}>{item}</span>
-                ))}
+              <div className="certificate-grid">
+                {profile.certifications?.map((item) => {
+                  const certificate = typeof item === 'string'
+                    ? { name: item, image: certificateImageMap[item] || certUdemy }
+                    : item
+
+                  return (
+                    <div key={certificate.name} className="certificate-item">
+                      <img
+                        src={certificate.image || certUdemy}
+                        alt={certificate.name}
+                        className="certificate-image"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <span>{certificate.name}</span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>

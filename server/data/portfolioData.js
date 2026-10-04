@@ -62,7 +62,7 @@ export const portfolioData = {
       description:
         'A full-stack evaluation platform for managing instructor assessments, reports, and feedback workflows.',
       stack: ['React', 'Node.js', 'Express', 'MongoDB'],
-      link: 'https://github.com/Abey-Ashebir/IES-Instructor-Evaluation-System',
+      link: 'https://github.com/Abey-Ashebir',
     },
     {
       name: 'Student Seminar Presenter',
